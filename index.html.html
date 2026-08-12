@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Territórios Agroecológicos - SEAU Recife</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family: Arial, Helvetica, sans-serif; }
+  #map { height: 100vh; width: 100%; }
+
+  .icone-marcador {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    font-size: 16px;
+  }
+
+  .popup-titulo { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+  .popup-linha { font-size: 12px; margin: 2px 0; color: #444; }
+
+  .leaflet-control-layers { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+  // ===== DADOS REAIS: 104 pontos do SEAU =====
+  const pontos = [{"nome": "Escola Municipal Olindina Monteiro de Oliveira Fran\u00e7a", "categoria": "Educa\u00e7\u00e3o", "lat": -8.002633349447594, "lon": -34.90628073627551}, {"nome": "Escola Municipal Alto Santa Teresinha", "categoria": "Educa\u00e7\u00e3o", "lat": -8.009861843511013, "lon": -34.90277052937564}, {"nome": "Escola Estadual Presidente Arthur Costa e Silva", "categoria": "Educa\u00e7\u00e3o", "lat": -8.072300224331538, "lon": -34.92289160816424}, {"nome": "Escola Municipal Professor Nilo Pereira", "categoria": "Educa\u00e7\u00e3o", "lat": -8.027282178667189, "lon": -34.92553841258294}, {"nome": "Escola Municipal Santa Edwiges", "categoria": "Educa\u00e7\u00e3o", "lat": -8.069952363372234, "lon": -34.90731103948682}, {"nome": "EMTI da Mangabeira", "categoria": "Educa\u00e7\u00e3o", "lat": -8.023709641666512, "lon": -34.90045763001508}, {"nome": "Creche Municipal Recife 2000", "categoria": "Educa\u00e7\u00e3o", "lat": -8.097473275369397, "lon": -34.93728373396647}, {"nome": "CMEI Dorgiane dos Santos Xavier Souza", "categoria": "Educa\u00e7\u00e3o", "lat": -8.01982664801862, "lon": -34.8770778781765}, {"nome": "Escola Coronel Othon", "categoria": "Educa\u00e7\u00e3o", "lat": -8.01613392484754, "lon": -34.92828313787952}, {"nome": "Creche Municipal Waldir Savluschinske", "categoria": "Educa\u00e7\u00e3o", "lat": -8.050334112612616, "lon": -34.93958763229427}, {"nome": "EMTI Maria Sampaio de Lucena", "categoria": "Educa\u00e7\u00e3o", "lat": -8.121545449106533, "lon": -34.94643597291551}, {"nome": "Creche Escola Recife Santa Luzia", "categoria": "Educa\u00e7\u00e3o", "lat": -8.045192801231098, "lon": -34.91659320040858}, {"nome": "Escola Municipal Poeta Jo\u00e3o Cabral de Melo Neto", "categoria": "Educa\u00e7\u00e3o", "lat": -8.091626803196611, "lon": -34.88609348139608}, {"nome": "Escola Municipal Anita Paes Barreto", "categoria": "Educa\u00e7\u00e3o", "lat": -8.014968768197846, "lon": -34.8872085533298}, {"nome": "Escola Municipal Divino Esp\u00edrito Santo", "categoria": "Educa\u00e7\u00e3o", "lat": -8.030424330420981, "lon": -34.95463914343548}, {"nome": "Escola Municipal Zumbi dos Palmares", "categoria": "Educa\u00e7\u00e3o", "lat": -8.040838664652854, "lon": -34.9518485438076}, {"nome": "Creche Municipal Aritana", "categoria": "Educa\u00e7\u00e3o", "lat": -8.10894341557129, "lon": -34.90654170034185}, {"nome": "Escola Municipal Karla Patr\u00edcia", "categoria": "Educa\u00e7\u00e3o", "lat": -8.108995538509827, "lon": -34.89594951854106}, {"nome": "Escola Municipal Edite Braga", "categoria": "Educa\u00e7\u00e3o", "lat": -8.079005175547428, "lon": -34.90497551232531}, {"nome": "EFER Professor Paulo Freire", "categoria": "Educa\u00e7\u00e3o", "lat": -8.054367621972677, "lon": -34.90930711810758}, {"nome": "Creche Municipal Vov\u00f4 Artur", "categoria": "Educa\u00e7\u00e3o", "lat": -8.069074858971948, "lon": -34.89123230054005}, {"nome": "Escola Municipal Magalh\u00e3es Bastos", "categoria": "Educa\u00e7\u00e3o", "lat": -8.046978212115592, "lon": -34.95695487116495}, {"nome": "Creche Municipal Professor Paulo Rosas", "categoria": "Educa\u00e7\u00e3o", "lat": -8.056353728343215, "lon": -34.95619318113616}, {"nome": "Creche Escola Recife Miguel Arraes Roda de Fogo", "categoria": "Educa\u00e7\u00e3o", "lat": -8.059556521582934, "lon": -34.93720823252001}, {"nome": "Escola Municipal Arquiteto Alexandre Muniz de Oliveira", "categoria": "Educa\u00e7\u00e3o", "lat": -7.997771981826622, "lon": -34.93617661451371}, {"nome": "Escola Municipal Severina Lira", "categoria": "Educa\u00e7\u00e3o", "lat": -8.028651418591217, "lon": -34.9004951816781}, {"nome": "CMEI Nosso Senhor Jesus do Bonfim", "categoria": "Educa\u00e7\u00e3o", "lat": -8.081273169104055, "lon": -34.93061460877782}, {"nome": "EMTI Reitor Jo\u00e3o Alfredo", "categoria": "Educa\u00e7\u00e3o", "lat": -8.065210657120193, "lon": -34.8953878103322}, {"nome": "Creche Municipal Jo\u00e3o Eug\u00eanio", "categoria": "Educa\u00e7\u00e3o", "lat": -8.040131171828536, "lon": -34.9403712695314}, {"nome": "Escola Municipal Jardim Monte Verde", "categoria": "Educa\u00e7\u00e3o", "lat": -8.118678544266547, "lon": -34.9600896895957}, {"nome": "Creche Escola Semeart Recife", "categoria": "Educa\u00e7\u00e3o", "lat": -8.03020853503243, "lon": -34.95526093078867}, {"nome": "Escola Municipal Professora Almerinda Umbelino de Barros", "categoria": "Educa\u00e7\u00e3o", "lat": -8.01008371828384, "lon": -34.92109589153147}, {"nome": "Escola Estadual Caio Pereira", "categoria": "Educa\u00e7\u00e3o", "lat": -8.012327877100235, "lon": -34.9131891002647}, {"nome": "Creche Escola S\u00e9rgio Loreto", "categoria": "Educa\u00e7\u00e3o", "lat": -8.071305295539135, "lon": -34.88561850748236}, {"nome": "Escola Municipal Mundo Esperan\u00e7a", "categoria": "Educa\u00e7\u00e3o", "lat": -8.014114708118676, "lon": -34.95673229305688}, {"nome": "Creche Escola da Mangabeira", "categoria": "Educa\u00e7\u00e3o", "lat": -8.023105524514476, "lon": -34.90062575071834}, {"nome": "Escola Estadual Maciel Pinheiro", "categoria": "Educa\u00e7\u00e3o", "lat": -8.047014067881724, "lon": -34.91350040250889}, {"nome": "Escola Municipal Paulo VI", "categoria": "Educa\u00e7\u00e3o", "lat": -8.007678669413867, "lon": -34.90457225156409}, {"nome": "Escola Municipal S\u00edtio do C\u00e9u", "categoria": "Educa\u00e7\u00e3o", "lat": -8.041291003224329, "lon": -34.88050889982501}, {"nome": "Escola Municipal Jardim Uch\u00f4a", "categoria": "Educa\u00e7\u00e3o", "lat": -8.100711821339928, "lon": -34.93803372427323}, {"nome": "Creche Municipal Tia Em\u00edlia", "categoria": "Educa\u00e7\u00e3o", "lat": -8.002288514320812, "lon": -34.91444350264273}, {"nome": "EREM Gin\u00e1sio Pernambucano", "categoria": "Educa\u00e7\u00e3o", "lat": -8.058105450994972, "lon": -34.87918118275942}, {"nome": "Escola Municipal Engenho do Meio", "categoria": "Educa\u00e7\u00e3o", "lat": -8.049701348429357, "lon": -34.93961249492687}, {"nome": "Creche Municipal Alto Jos\u00e9 do Pinho", "categoria": "Educa\u00e7\u00e3o", "lat": -8.022399628115963, "lon": -34.90842297500122}, {"nome": "CMEI Alcides Restelli Tedesco", "categoria": "Educa\u00e7\u00e3o", "lat": -8.05493186265196, "lon": -34.91488736423042}, {"nome": "Escola Municipal Waldemar Valente", "categoria": "Educa\u00e7\u00e3o", "lat": -8.076114954416365, "lon": -34.94756356856237}, {"nome": "Escola Municipal Governador Miguel Arraes de Alencar", "categoria": "Educa\u00e7\u00e3o", "lat": -8.092474837989043, "lon": -34.92538029741897}, {"nome": "Escola Municipal Oct\u00e1vio de Meira Lins", "categoria": "Educa\u00e7\u00e3o", "lat": -8.01021689995357, "lon": -34.91639297345779}, {"nome": "Creche Escola Beirinhas", "categoria": "Educa\u00e7\u00e3o", "lat": -8.101410021295704, "lon": -34.92605965286604}, {"nome": "Jardim Evandro", "categoria": "Horta Comunit\u00e1ria", "lat": -8.12067296126384, "lon": -34.90607129172034}, {"nome": "Resistir \u00e9 Preciso", "categoria": "Horta Comunit\u00e1ria", "lat": -7.99823427783029, "lon": -34.92453760352031}, {"nome": "Marielle Bra\u00e7o Forte", "categoria": "Horta Comunit\u00e1ria", "lat": -8.132375354512243, "lon": -34.91183437764313}, {"nome": "Ruy Fraz\u00e3o Sustent\u00e1vel", "categoria": "Horta Comunit\u00e1ria", "lat": -8.07617776655253, "lon": -34.91425305502648}, {"nome": "Flores", "categoria": "Horta Comunit\u00e1ria", "lat": -8.071910302826627, "lon": -34.90651340000834}, {"nome": "ONG Sempre Viva", "categoria": "Horta Comunit\u00e1ria", "lat": -7.989409145311615, "lon": -34.91970767207525}, {"nome": "Ilha de Deus", "categoria": "Horta Comunit\u00e1ria", "lat": -8.087598282459386, "lon": -34.90084229175478}, {"nome": "Dandara", "categoria": "Horta Comunit\u00e1ria", "lat": -8.0174065, "lon": -34.87388079999999}, {"nome": "Semeando Resist\u00eancia", "categoria": "Horta Comunit\u00e1ria", "lat": -8.048404290510456, "lon": -34.94294954777016}, {"nome": "M\u00e3os de Milagres", "categoria": "Horta Comunit\u00e1ria", "lat": -8.109226344778433, "lon": -34.95201320750681}, {"nome": "Espa\u00e7o Mulher de Passarinho", "categoria": "Horta Comunit\u00e1ria", "lat": -7.979671294972665, "lon": -34.91804826450877}, {"nome": "Cafez\u00f3polis", "categoria": "Horta Comunit\u00e1ria", "lat": -8.099842596829376, "lon": -34.90900697263675}, {"nome": "CAPS Livremente", "categoria": "Sa\u00fade", "lat": -8.138155823012408, "lon": -34.91230450974436}, {"nome": "Hospital da Mulher", "categoria": "Sa\u00fade", "lat": -8.0704769, "lon": -34.9411233}, {"nome": "SIM Servi\u00e7o Integrado de Sa\u00fade Mental", "categoria": "Sa\u00fade", "lat": -8.0594605220911, "lon": -34.89123482748515}, {"nome": "CAPS Clea Lacet", "categoria": "Sa\u00fade", "lat": -8.06603359981879, "lon": -34.91632169964258}, {"nome": "CAPS Boa Vista", "categoria": "Sa\u00fade", "lat": -8.055036493543831, "lon": -34.88634900320248}, {"nome": "Policl\u00ednica Lessa de Andrade", "categoria": "Sa\u00fade", "lat": -8.05859372346611, "lon": -34.90706416357162}, {"nome": "CAPS Espa\u00e7o Azul", "categoria": "Sa\u00fade", "lat": -8.024539704866402, "lon": -34.91076610013373}, {"nome": "CAPS Jos\u00e9 Lucena", "categoria": "Sa\u00fade", "lat": -8.10915070078882, "lon": -34.91853744646776}, {"nome": "CAPS Ren\u00e9 Ribeiro", "categoria": "Sa\u00fade", "lat": -8.082227690600018, "lon": -34.90836615061737}, {"nome": "USF UPINHA Fernanda Wanderley", "categoria": "Sa\u00fade", "lat": -8.00530769102687, "lon": -34.90000458499168}, {"nome": "CECON Centro de Conviv\u00eancia F\u00e1tima Caio", "categoria": "Sa\u00fade", "lat": -8.029937777970357, "lon": -34.95308449697249}, {"nome": "CAPS Espa\u00e7o Vida", "categoria": "Sa\u00fade", "lat": -8.052503439936153, "lon": -34.92856253476062}, {"nome": "Posto de Sa\u00fade Jader Andrade", "categoria": "Sa\u00fade", "lat": -8.121199688303195, "lon": -34.90699699934501}, {"nome": "CAPS Esperan\u00e7a", "categoria": "Sa\u00fade", "lat": -8.028522656185357, "lon": -34.90299456941251}, {"nome": "UBS Jord\u00e3o Baixo", "categoria": "Sa\u00fade", "lat": -8.13015373076375, "lon": -34.93938898398227}, {"nome": "CPTRA Centro de Preven\u00e7\u00e3o Tratamento e Reabilita\u00e7\u00e3o do Alcoolismo", "categoria": "Sa\u00fade", "lat": -8.034012077513713, "lon": -34.90200241580603}, {"nome": "CAPS Professor Luiz Cerqueira", "categoria": "Sa\u00fade", "lat": -8.049738611847534, "lon": -34.88925916863852}, {"nome": "CAPS David Capistrano", "categoria": "Sa\u00fade", "lat": -8.105188301084983, "lon": -34.92335392721856}, {"nome": "Terreiro Il\u00ea As\u00e9 Aganj\u00fa As\u00e9ob\u00e0", "categoria": "Cultural", "lat": -8.076736000203306, "lon": -34.90973246766278}, {"nome": "Terreiro Il\u00ea Oy\u00e1 Igbal\u00e9 Funan", "categoria": "Cultural", "lat": -8.03983548856531, "lon": -34.96298504660752}, {"nome": "Terreiro Sede Bloco Obirin", "categoria": "Cultural", "lat": -8.017678091663354, "lon": -34.91667969879565}, {"nome": "Terreiro Il\u00ea Ob\u00e1 Aganj\u00fa Okoloy\u00e1", "categoria": "Cultural", "lat": -8.003574021868308, "lon": -34.90226154190431}, {"nome": "Terreiro Il\u00ea As\u00e9 Oy\u00e1 Bery", "categoria": "Cultural", "lat": -8.09444799977503, "lon": -34.94232467450878}, {"nome": "Maracatu Na\u00e7\u00e3o Oxal\u00e1", "categoria": "Cultural", "lat": -8.074405015448876, "lon": -34.90365197862779}, {"nome": "Terreiro Il\u00ea Om\u00f4 If\u00e9 As\u00e9 Togun Of\u00e1", "categoria": "Cultural", "lat": -8.036609390780892, "lon": -34.93454730767756}, {"nome": "Terreiro Il\u00ea Ob\u00e1 Og\u00fant\u00e9", "categoria": "Cultural", "lat": -8.020824300621609, "lon": -34.89596429054833}, {"nome": "Quilombo Capibaribe", "categoria": "Cultural", "lat": -8.056497523479795, "lon": -34.95646063113254}, {"nome": "SAFUC Sistema Agroflorestal Urbano e de Composto", "categoria": "Institucional", "lat": -8.054076860239233, "lon": -34.87253526205345}, {"nome": "S\u00edtio Escola Nathan Valle", "categoria": "Institucional", "lat": -8.04472963841565, "lon": -34.92389246246871}, {"nome": "Conviva Mercado e Feiras", "categoria": "Institucional", "lat": -8.111042851222926, "lon": -34.9046100283935}, {"nome": "Secretaria de Trabalho e Qualifica\u00e7\u00e3o Profissional", "categoria": "Institucional", "lat": -8.060150619594095, "lon": -34.8805209753902}, {"nome": "Secretaria de Vigil\u00e2ncia Ambiental", "categoria": "Institucional", "lat": -8.019145840076765, "lon": -34.87403860815985}, {"nome": "CRAS Cordeiro", "categoria": "Institucional", "lat": -8.04527782675482, "lon": -34.92169009160508}, {"nome": "CRAS Dois Irm\u00e3o", "categoria": "Institucional", "lat": -8.016272071578763, "lon": -34.94121386292225}, {"nome": "CRAS Dom H\u00e9lder C\u00e2mara", "categoria": "Institucional", "lat": -8.00297544540799, "lon": -34.91894939147473}, {"nome": "CRIAR Mustardinha", "categoria": "Institucional", "lat": -8.0710017, "lon": -34.9186074}, {"nome": "CRIAR Caxang\u00e1", "categoria": "Institucional", "lat": -8.054344154381772, "lon": -34.9144972025055}, {"nome": "COMPAZ Ariano Suassuna", "categoria": "Institucional", "lat": -8.059660344289197, "lon": -34.92598520728183}, {"nome": "COMPAZ Miguel Arraes", "categoria": "Institucional", "lat": -8.054384965844495, "lon": -34.9144549383305}, {"nome": "COMPAZ Dom Helder C\u00e2mara", "categoria": "Institucional", "lat": -8.073800534421878, "lon": -34.8956630101907}, {"nome": "COMPAZ Leda Alves", "categoria": "Institucional", "lat": -8.094988904998491, "lon": -34.89035252027374}, {"nome": "COMPAZ Paulo Freire", "categoria": "Institucional", "lat": -8.118592244110294, "lon": -34.94569577121074}, {"nome": "COMPAZ Eduardo Campos", "categoria": "Institucional", "lat": -8.010140011140997, "lon": -34.90289871438966}];
+
+  // ===== Configuração visual por categoria =====
+  const config = {
+    "Educação":           { emoji: "🎓", cor: "#f57c00" },
+    "Institucional":      { emoji: "🏛️", cor: "#303f9f" },
+    "Horta Comunitária":  { emoji: "🌱", cor: "#388e3c" },
+    "Cultural":           { emoji: "🎭", cor: "#7b1fa2" },
+    "Saúde":              { emoji: "➕", cor: "#d32f2f" }
+  };
+
+  function criarIcone(categoria) {
+    const c = config[categoria] || { emoji: "📍", cor: "#555" };
+    return L.divIcon({
+      html: `<div class="icone-marcador" style="background:${c.cor};">${c.emoji}</div>`,
+      className: "",
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15]
+    });
+  }
+
+  const map = L.map('map').setView([-8.06, -34.92], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  const camadas = {};
+  Object.keys(config).forEach(cat => {
+    camadas[cat] = L.layerGroup();
+  });
+
+  pontos.forEach(p => {
+    const marcador = L.marker([p.lat, p.lon], { icon: criarIcone(p.categoria) });
+    const c = config[p.categoria] || { cor: "#555" };
+    marcador.bindPopup(`
+      <div class="popup-titulo">${p.nome}</div>
+      <div class="popup-linha" style="color:${c.cor}; font-weight:bold;">${p.categoria}</div>
+    `);
+    if (camadas[p.categoria]) {
+      marcador.addTo(camadas[p.categoria]);
+    }
+  });
+
+  Object.values(camadas).forEach(layer => layer.addTo(map));
+
+  const overlays = {};
+  Object.keys(config).forEach(cat => {
+    const c = config[cat];
+    overlays[`${c.emoji} ${cat}`] = camadas[cat];
+  });
+  L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+
+</script>
+
+</body>
+</html>
